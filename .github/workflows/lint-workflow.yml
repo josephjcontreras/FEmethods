@@ -1,0 +1,37 @@
+name: lint
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+          pip install black
+      - name: lint package flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 femethods --count --select=E9,F63,F7,F82 --show-source --statistics
+
+          # The GitHub editor is 127 chars wide
+          flake8 femethods --count --max-complexity=10 --max-line-length=127 --statistics
+      - name: lint tests flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 tests --count --select=E9,F63,F7,F82 --show-source --statistics
+
+          # The GitHub editor is 127 chars wide
+          flake8 tests --count --max-complexity=10 --max-line-length=127 --statistics
+      - name: check package black
+        run: |
+          black --check femethods
+      - name: check tests black
+        run: |
+          black --check tests
